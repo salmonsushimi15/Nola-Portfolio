@@ -1,13 +1,27 @@
 ---
 import { Image } from "astro:assets";
 import type { ImageMetadata } from "astro";
-import SectionNumber from "./SectionNumber.astro";
 
 /**
- * Grid card for /projects. Two visual modes:
+ * Grid card for /projects + the Home "Selected Work" highlight. Two visual
+ * modes, unified under one shared frame/number/accent-line language (Revisi
+ * klien putaran 1, poin 3):
  *  - photo cover: pass `image` (a statically-imported ImageMetadata)
  *  - typographic cover: omit `image` — used for #07-09 per client decision
- *    (no renders available; terracotta panel + number + title instead of a placeholder photo).
+ *    (no renders available; a large faint numeral on a terracotta panel
+ *    instead of a placeholder photo).
+ *
+ * Both modes share: a thin cream "mat" frame, a crisp number chip that
+ * straddles the image/panel and text-panel seam (the "structural numbering
+ * overlapping the render" look referenced from the client's Canva PDF), and
+ * an accent rule under the title that extends on hover.
+ *
+ * `slug` (Revisi klien putaran 2A, poin 4) drives a `transition:name` on the
+ * cover — photo or terracotta panel — and on the title, so Astro's View
+ * Transitions morphs this exact element into the matching one in
+ * ProjectDetailTemplate.astro (same naming scheme) instead of a plain
+ * cross-fade. Optional so this component still works anywhere a card is
+ * shown without a detail-page counterpart to morph into.
  */
 interface Props {
   number: number;
@@ -16,39 +30,68 @@ interface Props {
   href: string;
   image?: ImageMetadata;
   imageAlt?: string;
+  slug?: string;
 }
 
-const { number, title, category, href, image, imageAlt } = Astro.props;
+const { number, title, category, href, image, imageAlt, slug } = Astro.props;
+const numberDisplay = String(number).padStart(2, "0");
+const imageTransitionName = slug ? `project-image-${slug}` : undefined;
+const titleTransitionName = slug ? `project-title-${slug}` : undefined;
 ---
 
 <a
   href={href}
-  class="group relative flex flex-col overflow-hidden bg-cream-panel transition-shadow duration-300 hover:shadow-xl focus-visible:shadow-xl"
+  class="group relative flex flex-col bg-cream-panel p-2 transition-shadow duration-300 hover:shadow-xl focus-visible:shadow-xl"
 >
-  <div class="aspect-[4/3] w-full overflow-hidden">
-    {
-      image ? (
-        <Image
-          src={image}
-          alt={imageAlt ?? title}
-          class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-          widths={[400, 800, 1200]}
-          sizes="(min-width: 768px) 33vw, 100vw"
-          loading="lazy"
-        />
-      ) : (
-        <div class="flex h-full w-full flex-col items-center justify-center gap-4 bg-terracotta p-6 text-center">
-          <SectionNumber number={number} tone="inverted" size="lg" />
-          <p class="label-caps max-w-[16ch] text-sm text-white">{title}</p>
-        </div>
-      )
-    }
+  <div class="relative">
+    <div class="aspect-[4/3] w-full overflow-hidden">
+      {
+        image ? (
+          <Image
+            src={image}
+            alt={imageAlt ?? title}
+            class="h-full w-full object-cover transition-transform duration-300 ease-out group-hover:scale-[1.04] group-focus-visible:scale-[1.04]"
+            widths={[400, 800, 1200]}
+            sizes="(min-width: 768px) 33vw, 100vw"
+            loading="lazy"
+            transition:name={imageTransitionName}
+          />
+        ) : (
+          <div
+            class="flex h-full w-full items-center justify-center bg-terracotta transition-colors duration-300 group-hover:bg-terracotta-deep"
+            transition:name={imageTransitionName}
+          >
+            <span
+              aria-hidden="true"
+              class="text-7xl font-bold tabular-nums text-cream/25 sm:text-8xl"
+            >
+              {numberDisplay}
+            </span>
+          </div>
+        )
+      }
+    </div>
+
+    <!-- Structural numbering — overlaps the seam between image/panel and text, per PDF reference. -->
+    <span
+      aria-hidden="true"
+      class="absolute -bottom-3 left-4 bg-cream px-3 py-1 text-2xl font-bold leading-none tabular-nums text-terracotta shadow-sm transition-transform duration-300 group-hover:-translate-y-0.5 sm:text-3xl"
+    >
+      {numberDisplay}
+    </span>
   </div>
 
-  <div class="flex flex-1 flex-col gap-2 p-5">
-    <SectionNumber number={number} label={category} size="sm" />
-    <h3 class="text-xl font-semibold text-ink transition-colors group-hover:text-terracotta-deep">
+  <div class="flex flex-1 flex-col gap-2 px-2 pb-1 pt-6">
+    <p class="label-caps-natural text-xs text-ink/60">{category}</p>
+    <h3
+      class="text-xl font-semibold text-ink transition-transform duration-300 group-hover:translate-x-1 group-hover:text-terracotta-deep"
+      transition:name={titleTransitionName}
+    >
       {title}
     </h3>
+    <span
+      aria-hidden="true"
+      class="mt-1 h-0.5 w-8 bg-terracotta transition-[width] duration-300 ease-out group-hover:w-16"
+    />
   </div>
 </a>

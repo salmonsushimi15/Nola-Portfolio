@@ -28,9 +28,15 @@ const contacts = [
     icon: "mail" as const,
   },
   {
-    label: "+62 823-7348-7727",
-    href: "tel:+6282373487727",
-    icon: "phone" as const,
+    label: t.contactChannels.whatsappLabel,
+    // Revisi klien putaran 2A, poin 6: phone display replaced with a
+    // WhatsApp deep link (opens a chat directly) — the raw number is kept
+    // as visible `sublabel` text so anyone who wants to dial manually still
+    // can. https:// href means the generic target/rel logic below already
+    // opens it in a new tab with rel="noopener".
+    sublabel: "+62 823-7348-7727",
+    href: "https://wa.me/6282373487727",
+    icon: "whatsapp" as const,
   },
   {
     label: "linkedin.com/in/nolaamallia",
@@ -46,7 +52,7 @@ const contacts = [
 ---
 
 <section class="content-wrap grid gap-12 py-16 sm:py-20 md:grid-cols-[1fr_1.1fr] md:py-24">
-  <div>
+  <div data-reveal>
     <p class="label-caps text-sm text-terracotta-deep">{contact.eyebrow}</p>
     <h1 class="mt-4 text-4xl font-bold sm:text-5xl">{contact.heading}</h1>
     <p class="mt-6 max-w-md text-base text-ink/70 sm:text-lg">{contact.lead}</p>
@@ -55,8 +61,8 @@ const contacts = [
       <h2 class="label-caps text-xs text-ink/70">{contact.fallback.heading}</h2>
       <ul class="mt-4 flex flex-col gap-3">
         {
-          contacts.map((c) => (
-            <li>
+          contacts.map((c, i) => (
+            <li data-reveal style={`transition-delay: ${Math.min(i, 4) * 80}ms`}>
               <a
                 href={c.href}
                 target={c.href.startsWith("http") ? "_blank" : undefined}
@@ -70,9 +76,9 @@ const contacts = [
                       <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
                     </svg>
                   )}
-                  {c.icon === "phone" && (
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M13.832 16.568a1 1 0 0 0 1.213-.303l.355-.465A2 2 0 0 1 17 15h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2A18 18 0 0 1 2 4a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-.8 1.6l-.468.351a1 1 0 0 0-.292 1.233 14 14 0 0 0 6.392 6.384" />
+                  {c.icon === "whatsapp" && (
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                      <path d="M12.04 2.003c-5.46 0-9.9 4.44-9.9 9.9 0 1.746.457 3.436 1.324 4.923L2 22l5.29-1.388a9.86 9.86 0 0 0 4.75 1.21h.004c5.46 0 9.9-4.44 9.9-9.9 0-2.645-1.03-5.13-2.9-6.998a9.83 9.83 0 0 0-6.998-2.9zm0 18.116h-.003a8.2 8.2 0 0 1-4.183-1.146l-.3-.178-3.12.818.833-3.043-.196-.312a8.2 8.2 0 0 1-1.256-4.36c0-4.54 3.696-8.235 8.238-8.235 2.2 0 4.267.857 5.823 2.415a8.18 8.18 0 0 1 2.412 5.827c0 4.54-3.696 8.234-8.248 8.234zm4.522-6.163c-.248-.124-1.467-.723-1.694-.807-.227-.083-.393-.124-.558.125-.166.248-.64.806-.784.972-.145.166-.29.187-.538.062-.248-.125-1.047-.386-1.994-1.23-.737-.657-1.235-1.47-1.38-1.718-.145-.248-.016-.382.109-.506.112-.111.248-.29.373-.435s.166-.248.25-.414c.083-.166.041-.31-.02-.435-.063-.124-.559-1.347-.765-1.845-.202-.485-.407-.42-.559-.428l-.475-.008a.91.91 0 0 0-.66.31c-.227.248-.868.848-.868 2.068 0 1.22.888 2.399 1.012 2.565.124.166 1.748 2.669 4.236 3.742.592.256 1.053.408 1.413.522.594.189 1.134.162 1.561.099.476-.071 1.467-.6 1.674-1.18.207-.58.207-1.077.145-1.18-.062-.104-.227-.166-.475-.29z" />
                     </svg>
                   )}
                   {c.icon === "linkedin" && (
@@ -90,7 +96,14 @@ const contacts = [
                     </svg>
                   )}
                 </span>
-                {c.label}
+                <span class="flex flex-col leading-tight">
+                  <span>{c.label}</span>
+                  {"sublabel" in c && c.sublabel && (
+                    <span class="text-xs text-ink/50 group-hover:text-terracotta-deep/70">
+                      {c.sublabel}
+                    </span>
+                  )}
+                </span>
               </a>
             </li>
           ))
@@ -99,13 +112,14 @@ const contacts = [
     </div>
   </div>
 
-  <div class="bg-cream-panel p-6 sm:p-10">
+  <div class="bg-cream-panel p-6 sm:p-10" data-reveal style="transition-delay: 120ms">
     <form
       name="contact"
       method="POST"
       data-netlify="true"
       netlify-honeypot="bot-field"
       action={successAction}
+      data-astro-reload
       class="flex flex-col gap-5"
     >
       <input type="hidden" name="form-name" value="contact" />

@@ -175,6 +175,10 @@ export async function getProjectOgImage(slug: string): Promise<string | undefine
  * and two-column (2 images) — the "editorial rhythm" layout instead of a
  * uniform grid dump. Image ORDER within the list is left as-is (filename
  * order); only the row grouping/size alternates.
+ *
+ * Revisi klien putaran 2B (book-style detail page): each returned row also
+ * becomes one book "page" in ProjectDetailTemplate.astro, so this doubles as
+ * the gallery pagination unit — 1-2 renders per book page, per PRD.
  */
 export function buildGalleryRows(images: ImageMetadata[]): ImageMetadata[][] {
   const rows: ImageMetadata[][] = [];
@@ -187,4 +191,26 @@ export function buildGalleryRows(images: ImageMetadata[]): ImageMetadata[][] {
     full = !full;
   }
   return rows;
+}
+
+/**
+ * Splits a project's concept paragraphs into "book pages" (Revisi klien
+ * putaran 2B — book-style detail page), at most `maxPerPage` paragraphs
+ * each. Every current project has 2 or 3 concept paragraphs, so this either
+ * keeps a short concept on one page (2 paragraphs) or spreads a longer one
+ * across two consecutive book pages (3 -> [2, 1]) — the client's instruction
+ * to "pecah jadi 2 halaman buku daripada scroll dalam halaman" (split into
+ * two book pages rather than scroll inside one page), implemented as a
+ * simple paragraph-count rule instead of a fragile character-count estimate.
+ */
+export function chunkConceptParagraphs(
+  paragraphs: string[],
+  maxPerPage = 2
+): string[][] {
+  if (paragraphs.length === 0) return [[]];
+  const pages: string[][] = [];
+  for (let i = 0; i < paragraphs.length; i += maxPerPage) {
+    pages.push(paragraphs.slice(i, i + maxPerPage));
+  }
+  return pages;
 }

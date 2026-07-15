@@ -1,0 +1,306 @@
+---
+/**
+ * First-visit intro splash (Revisi klien putaran 1, poin 1).
+ *
+ * - Shows once per browser session (sessionStorage flag) — set the instant the
+ *   animation starts, so even a reload mid-animation won't re-trigger it.
+ * - Sits on top of the already-rendered page (position: fixed overlay), it
+ *   never blocks content fetching/rendering underneath.
+ * - Skippable via click/tap anywhere on the overlay, the explicit skip button,
+ *   or Esc.
+ * - prefers-reduced-motion: skips the letter-reveal entirely and holds only
+ *   briefly before a near-instant dismiss.
+ * - The single inline script below carries `data-astro-rerun` so it re-executes
+ *   on every Astro View Transitions navigation (client-side swaps don't
+ *   otherwise re-run identical inline scripts) — see Base.astro for the
+ *   `<ClientRouter />` wiring (Revisi poin 2).
+ */
+import { getUi } from "../i18n/getUi";
+import type { Lang } from "../i18n/paths";
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = getUi(lang);
+---
+
+<div id="intro-overlay" class="intro-overlay" aria-hidden="true">
+  <div class="intro-overlay__inner">
+    <p class="intro-overlay__name" data-intro-line>{t.intro.name}</p>
+    <div class="intro-overlay__progress" data-intro-progress>
+      <span class="intro-overlay__progress-fill" data-intro-progress-fill></span>
+    </div>
+    <p class="intro-overlay__role" data-intro-line>{t.intro.role}</p>
+  </div>
+  <button
+    type="button"
+    class="intro-overlay__skip"
+    data-intro-skip
+    aria-label={t.intro.skipLabel}
+  >
+    {t.intro.skipLabel}
+  </button>
+</div>
+
+<script is:inline data-astro-rerun>
+  (function () {
+    var STORAGE_KEY = "nolaIntroSeen";
+    var overlay = document.getElementById("intro-overlay");
+    if (!overlay) return;
+
+    var alreadySeen;
+    try {
+      alreadySeen = sessionStorage.getItem(STORAGE_KEY) === "1";
+    } catch (err) {
+      // sessionStorage unavailable (privacy mode etc.) — don't risk showing
+      // the intro on every single navigation, just skip it silently.
+      alreadySeen = true;
+    }
+
+    function hideNow() {
+      overlay.setAttribute("aria-hidden", "true");
+      overlay.classList.add("intro-overlay--hidden");
+      document.body.style.removeProperty("overflow");
+    }
+
+    if (alreadySeen) {
+      hideNow();
+      return;
+    }
+
+    try {
+      sessionStorage.setItem(STORAGE_KEY, "1");
+    } catch (err) {
+      /* ignore */
+    }
+
+    var reduceMotion =
+      window.matchMedia &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    overlay.removeAttribute("aria-hidden");
+    document.body.style.overflow = "hidden";
+
+    function wrapLetters(line, lineOffset) {
+      var text = line.textContent || "";
+      line.setAttribute("aria-label", text);
+      line.style.setProperty("--line-offset", String(lineOffset));
+      line.textContent = "";
+      line.classList.add("intro-overlay__line--split");
+      Array.prototype.forEach.call(text.split(""), function (ch, i) {
+        var span = document.createElement("span");
+        span.textContent = ch === " " ? " " : ch;
+        span.style.setProperty("--i", String(i));
+        span.setAttribute("aria-hidden", "true");
+        line.appendChild(span);
+      });
+    }
+
+    if (!reduceMotion) {
+      Array.prototype.forEach.call(
+        overlay.querySelectorAll("[data-intro-line]"),
+        function (line, idx) {
+          wrapLetters(line, idx);
+        }
+      );
+    } else {
+      overlay.classList.add("intro-overlay--reduced");
+    }
+
+    // Revisi putaran 2A poin 1: total intro duration ~2.3s -> ~4.3s
+    // (hold 3900ms + 450ms fade). The progress bar's CSS animation duration
+    // is driven from `holdMs` below so it always finishes filling exactly
+    // when the hold ends, right before fade-out starts, even if this number
+    // changes again later.
+    var holdMs = reduceMotion ? 150 : 3900;
+    var fadeMs = reduceMotion ? 0 : 450;
+    var dismissed = false;
+
+    var progressFill = overlay.querySelector("[data-intro-progress-fill]");
+    if (progressFill && !reduceMotion) {
+      progressFill.style.setProperty("--intro-progress-duration", holdMs + "ms");
+    }
+
+    function dismiss() {
+      if (dismissed) return;
+      dismissed = true;
+      window.clearTimeout(timeoutId);
+      overlay.classList.add("intro-overlay--leaving");
+      window.setTimeout(hideNow, fadeMs);
+    }
+
+    var timeoutId = window.setTimeout(dismiss, holdMs);
+
+    overlay.addEventListener("click", dismiss);
+    var skipBtn = overlay.querySelector("[data-intro-skip]");
+    if (skipBtn) {
+      skipBtn.addEventListener("click", function (e) {
+        e.stopPropagation();
+        dismiss();
+      });
+    }
+    document.addEventListener("keydown", function onKey(e) {
+      if (e.key === "Escape") {
+        dismiss();
+        document.removeEventListener("keydown", onKey);
+      }
+    });
+  })();
+</script>
+
+<style>
+  .intro-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    background: var(--color-terracotta);
+    color: var(--color-cream);
+    text-align: center;
+    padding: 1.5rem;
+  }
+
+  .intro-overlay--hidden {
+    display: none;
+  }
+
+  .intro-overlay--leaving {
+    animation: intro-overlay-fade-out 0.45s ease-in forwards;
+  }
+
+  .intro-overlay__name {
+    font-size: clamp(1.75rem, 5vw, 3.25rem);
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: 0.01em;
+  }
+
+  .intro-overlay__role {
+    margin-top: 0.5rem;
+    font-size: clamp(0.85rem, 2vw, 1.05rem);
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 0.35em;
+  }
+
+  /* Editorial loading bar between name and role — fills left to right over
+     the intro's hold duration (synced from JS via --intro-progress-duration
+     so it always finishes right before fade-out). */
+  .intro-overlay__progress {
+    width: min(220px, 50vw);
+    height: 2px;
+    margin-block: 0.85rem;
+    /* Bug fix: .intro-overlay__inner has no explicit width, so as a flex
+       item under the parent's `align-items: center` it shrink-to-fits to
+       its widest child (the name text). This fixed-width bar is a plain
+       block inside that shrunk box, so without an auto inline margin it
+       hugs the box's LEFT edge instead of sitting centered under the name —
+       confirmed via getBoundingClientRect: progress.left === name.left,
+       progress.centerX way off viewport/name/role centerX. */
+    margin-inline: auto;
+    background: color-mix(in srgb, var(--color-cream) 25%, transparent);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+
+  .intro-overlay__progress-fill {
+    display: block;
+    height: 100%;
+    width: 0%;
+    background: var(--color-cream);
+    animation: intro-progress-fill var(--intro-progress-duration, 3900ms) linear forwards;
+  }
+
+  @keyframes intro-progress-fill {
+    to {
+      width: 100%;
+    }
+  }
+
+  .intro-overlay--reduced .intro-overlay__progress {
+    display: none;
+  }
+
+  .intro-overlay__line--split span {
+    display: inline-block;
+    opacity: 0;
+    transform: translateY(0.5em);
+    animation: intro-letter-in 0.55s ease-out forwards;
+    animation-delay: calc(
+      (var(--i) * 25ms) + (var(--line-offset, 0) * 550ms)
+    );
+  }
+
+  .intro-overlay--reduced .intro-overlay__name,
+  .intro-overlay--reduced .intro-overlay__role {
+    opacity: 1;
+  }
+
+  .intro-overlay__skip {
+    position: absolute;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    min-height: 2.75rem;
+    display: inline-flex;
+    align-items: center;
+    padding-inline: 1rem;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--color-cream);
+    background: transparent;
+    border: 1px solid color-mix(in srgb, var(--color-cream) 40%, transparent);
+    border-radius: 999px;
+    cursor: pointer;
+    transition: border-color 0.2s ease-out, background-color 0.2s ease-out;
+  }
+
+  .intro-overlay__skip:hover {
+    border-color: var(--color-cream);
+    background: color-mix(in srgb, var(--color-cream) 12%, transparent);
+  }
+
+  .intro-overlay__skip:focus-visible {
+    outline: 2px solid var(--color-cream);
+    outline-offset: 3px;
+  }
+
+  @keyframes intro-letter-in {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes intro-overlay-fade-out {
+    to {
+      opacity: 0;
+      visibility: hidden;
+    }
+  }
+
+  /* Belt-and-suspenders: the global reduced-motion rule (global.css) already
+     collapses animation-duration to ~0, but it doesn't zero animation-delay —
+     without this, staggered letters would still "pop in" sequentially over
+     ~1.3s. Force everything to its end state instantly instead. */
+  @media (prefers-reduced-motion: reduce) {
+    .intro-overlay__line--split span {
+      animation: none !important;
+      opacity: 1 !important;
+      transform: none !important;
+    }
+    .intro-overlay--leaving {
+      animation: none !important;
+    }
+    .intro-overlay__progress {
+      display: none !important;
+    }
+  }
+</style>

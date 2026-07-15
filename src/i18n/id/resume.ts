@@ -13,6 +13,17 @@ export const resume = {
     filename: "Nola-Amallia-Putri-CV.pdf",
     meta: "PDF · diperbarui 2026",
   },
+  /**
+   * PDF portofolio lengkap (Revisi klien putaran 2A, poin 5) — versi
+   * terkompresi dari "PORTOFOLIO NOLA 2026.pdf" (~124MB) milik klien, sama
+   * untuk EN & ID (tidak ada versi berbahasa Indonesia terpisah).
+   */
+  portfolioDownload: {
+    label: "Unduh Portofolio (PDF)",
+    href: "/nola-amallia-putri-portfolio.pdf",
+    filename: "Nola-Amallia-Putri-Portfolio.pdf",
+    meta: "PDF — 18.6 MB",
+  },
   snapshot: {
     label: "Ringkasan Singkat",
     currentRoleLabel: "Posisi Saat Ini",

@@ -25,15 +25,18 @@ const p = (path: string) => getLocalizedPath(path, lang);
 <section class="content-wrap pb-20 sm:pb-28">
   <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
     {
-      projects.map((proj) => (
-        <ProjectCard
-          number={proj.number}
-          title={proj.title}
-          category={getCategoryLabel(proj, lang)}
-          href={p(`/projects/${proj.slug}`)}
-          image={proj.hasRenders ? getFeaturedCover(proj.slug) : undefined}
-          imageAlt={`${proj.title} — render preview`}
-        />
+      projects.map((proj, i) => (
+        <div data-reveal style={`transition-delay: ${Math.min(i, 4) * 80}ms`}>
+          <ProjectCard
+            number={proj.number}
+            title={proj.title}
+            category={getCategoryLabel(proj, lang)}
+            href={p(`/projects/${proj.slug}`)}
+            image={proj.hasRenders ? getFeaturedCover(proj.slug) : undefined}
+            imageAlt={`${proj.title} — render preview`}
+            slug={proj.slug}
+          />
+        </div>
       ))
     }
   </div>

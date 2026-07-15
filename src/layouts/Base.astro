@@ -1,6 +1,9 @@
 ---
+import { ClientRouter } from "astro:transitions";
 import Nav from "../components/Nav.astro";
 import Footer from "../components/Footer.astro";
+import IntroOverlay from "../components/IntroOverlay.astro";
+import ScrollReveal from "../components/ScrollReveal.astro";
 import "../styles/global.css";
 import { getUi } from "../i18n/getUi";
 import { getLocalizedPath, type Lang } from "../i18n/paths";
@@ -46,6 +49,34 @@ const ogLocaleAlternate = lang === "id" ? "en_US" : "id_ID";
 <html lang={lang}>
   <head>
     <meta charset="utf-8" />
+    <!-- Gates the [data-reveal] scroll-animation CSS (global.css), plus the
+         book-style project detail pagination (ProjectDetailTemplate.astro /
+         global.css `html.js .book__page` etc.), behind JS support.
+
+         BUG FIX (found while investigating a user report that book flip/prev-
+         next controls "stopped working" after browsing around, and that the
+         flip was never visible): `<html>` itself persists across
+         `<ClientRouter />` swaps, but its ATTRIBUTES do not merge additively —
+         Astro's swapRootAttributes() (astro/dist/transitions/swap-functions.js)
+         removes every current attribute on <html> and re-applies only the
+         freshly-fetched document's own html-tag attributes (plus a couple of
+         internal astro-transition-* ones). Since class="js" was only ever
+         added here by this script (never part of the server-rendered <html>
+         tag), every client-side navigation wiped it straight back off. This
+         script itself only runs ONCE per session (Astro dedupes identical
+         inline scripts across pages), so nothing was re-adding it — the whole
+         site silently fell back to its no-JS layout after literally any
+         client-side nav (including the EN/ID language toggle), which is why
+         the book's flip/prev/next appeared to work once, then "break". Fixed
+         by re-asserting the class on `astro:after-swap`, which Astro fires
+         right after each swap and always before `astro:page-load` — so every
+         `.js`-gated feature sees the class back in place before it re-inits. -->
+    <script is:inline>
+      document.documentElement.classList.add("js");
+      document.addEventListener("astro:after-swap", () => {
+        document.documentElement.classList.add("js");
+      });
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" href="/favicon.ico" />
@@ -79,9 +110,16 @@ const ogLocaleAlternate = lang === "id" ? "en_US" : "id_ID";
     <link rel="alternate" hreflang="id" href={idHref} />
     <link rel="alternate" hreflang="x-default" href={enHref} />
 
+    <!-- Cross-fade page transitions (Revisi poin 2). Intro overlay + mobile
+         nav toggle re-init on `astro:page-load`, which this also emits on the
+         very first load, so no separate DOMContentLoaded path is needed. -->
+    <ClientRouter />
+
     <slot name="head" />
   </head>
   <body class="flex min-h-screen flex-col bg-cream text-ink">
+    <IntroOverlay lang={lang} />
+
     <a
       href="#main-content"
       class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded focus:bg-terracotta-deep focus:px-4 focus:py-2 focus:text-cream"
@@ -96,5 +134,6 @@ const ogLocaleAlternate = lang === "id" ? "en_US" : "id_ID";
     </main>
 
     <Footer lang={lang} />
+    <ScrollReveal />
   </body>
 </html>

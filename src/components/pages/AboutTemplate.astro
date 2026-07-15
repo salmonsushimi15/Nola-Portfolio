@@ -23,7 +23,7 @@ const { content: about } = Astro.props;
   <ul class="mt-6 flex flex-wrap gap-3">
     {
       about.intro.tags.map((tag) => (
-        <li class="label-caps rounded-full border border-ink/15 px-4 py-2 text-xs text-ink/70">
+        <li class="label-caps-natural rounded-full border border-ink/15 px-4 py-2 text-xs text-ink/70">
           {tag}
         </li>
       ))
@@ -37,8 +37,12 @@ const { content: about } = Astro.props;
     <SectionNumber number={1} label={about.education.label} size="sm" />
     <ul class="mt-8 flex flex-col gap-8">
       {
-        about.education.items.map((item) => (
-          <li class="border-l-2 border-terracotta pl-6">
+        about.education.items.map((item, i) => (
+          <li
+            class="border-l-2 border-terracotta pl-6"
+            data-reveal
+            style={`transition-delay: ${Math.min(i, 4) * 80}ms`}
+          >
             <div class="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4">
               <h3 class="text-lg font-semibold text-ink">{item.institution}</h3>
               <p class="label-caps shrink-0 text-xs text-terracotta-deep">{item.dates}</p>
@@ -67,8 +71,12 @@ const { content: about } = Astro.props;
     <SectionNumber number={2} label={about.experience.label} size="sm" />
     <ul class="mt-8 flex flex-col gap-10">
       {
-        about.experience.items.map((item) => (
-          <li class="border-l-2 border-terracotta pl-6">
+        about.experience.items.map((item, i) => (
+          <li
+            class="border-l-2 border-terracotta pl-6"
+            data-reveal
+            style={`transition-delay: ${Math.min(i, 4) * 80}ms`}
+          >
             <div class="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4">
               <div>
                 <h3 class="text-lg font-semibold text-ink">{item.company}</h3>
@@ -101,7 +109,10 @@ const { content: about } = Astro.props;
 <section class="bg-terracotta py-16 text-cream sm:py-20">
   <div class="content-wrap">
     <SectionNumber number={3} label={about.philosophy.label} size="sm" tone="inverted" />
-    <blockquote class="mt-8 max-w-3xl text-2xl font-semibold leading-snug sm:text-3xl">
+    <blockquote
+      class="mt-8 max-w-3xl text-2xl font-semibold leading-snug sm:text-3xl"
+      data-reveal
+    >
       &ldquo;{about.philosophy.quote}&rdquo;
     </blockquote>
   </div>
@@ -112,7 +123,7 @@ const { content: about } = Astro.props;
   <div class="content-wrap">
     <SectionNumber number={4} label={about.skills.label} size="sm" />
     <div class="mt-8 grid gap-10 sm:grid-cols-3">
-      <div>
+      <div data-reveal>
         <h3 class="label-caps text-xs text-ink/70">{about.skills.hard.title}</h3>
         <ul class="mt-4 flex flex-wrap gap-2">
           {
@@ -122,7 +133,7 @@ const { content: about } = Astro.props;
           }
         </ul>
       </div>
-      <div>
+      <div data-reveal style="transition-delay: 80ms">
         <h3 class="label-caps text-xs text-ink/70">{about.skills.soft.title}</h3>
         <ul class="mt-4 flex flex-wrap gap-2">
           {
@@ -132,7 +143,7 @@ const { content: about } = Astro.props;
           }
         </ul>
       </div>
-      <div>
+      <div data-reveal style="transition-delay: 160ms">
         <h3 class="label-caps text-xs text-ink/70">{about.skills.languages.title}</h3>
         <ul class="mt-4 flex flex-col gap-2 text-sm text-ink">
           {
@@ -155,8 +166,12 @@ const { content: about } = Astro.props;
     <SectionNumber number={5} label={about.research.label} size="sm" />
     <div class="mt-8 grid gap-6 md:grid-cols-2">
       {
-        about.research.items.map((item) => (
-          <article class="flex flex-col gap-3 bg-cream-panel p-6">
+        about.research.items.map((item, i) => (
+          <article
+            class="flex flex-col gap-3 bg-cream-panel p-6"
+            data-reveal
+            style={`transition-delay: ${Math.min(i, 4) * 80}ms`}
+          >
             <div class="flex items-baseline justify-between gap-4">
               <p class="label-caps text-xs text-terracotta-deep">{item.type}</p>
               <p class="label-caps text-xs text-ink/70">{item.date}</p>

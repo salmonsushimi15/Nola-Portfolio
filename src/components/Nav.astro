@@ -34,7 +34,7 @@ const enHref = getLocalizedPath(currentPath, "en");
 const idHref = getLocalizedPath(currentPath, "id");
 ---
 
-<header class="sticky top-0 z-40 border-b border-ink/10 bg-cream/95 backdrop-blur-sm">
+<header class="sticky top-0 z-40 border-b border-ink/10 bg-cream-panel/90 backdrop-blur-md">
   <div class="content-wrap flex h-20 items-center justify-between">
     <a
       href={getLocalizedPath("/", lang)}
@@ -151,7 +151,7 @@ const idHref = getLocalizedPath(currentPath, "id");
   <nav
     id="mobile-menu"
     aria-label="Primary mobile"
-    class="hidden border-t border-ink/10 bg-cream md:hidden"
+    class="hidden border-t border-ink/10 bg-cream-panel/90 backdrop-blur-md md:hidden"
   >
     <ul class="label-caps content-wrap flex flex-col gap-1 py-3 text-xs">
       {
@@ -199,19 +199,32 @@ const idHref = getLocalizedPath(currentPath, "id");
 </header>
 
 <script>
-  const toggle = document.getElementById("nav-toggle");
-  const menu = document.getElementById("mobile-menu");
-  const iconMenu = document.getElementById("icon-menu");
-  const iconClose = document.getElementById("icon-close");
+  // Registered once — but `astro:page-load` fires after every navigation
+  // (initial load AND each client-side transition from `<ClientRouter />`),
+  // so the toggle keeps working against the freshly-swapped nav markup
+  // instead of only wiring up the very first page's DOM nodes.
+  document.addEventListener("astro:page-load", () => {
+    const toggle = document.getElementById("nav-toggle");
+    const menu = document.getElementById("mobile-menu");
+    const iconMenu = document.getElementById("icon-menu");
+    const iconClose = document.getElementById("icon-close");
 
-  toggle?.addEventListener("click", () => {
-    const isOpen = menu?.classList.contains("hidden") === false;
-    menu?.classList.toggle("hidden");
-    iconMenu?.classList.toggle("hidden");
-    iconClose?.classList.toggle("hidden");
-    toggle.setAttribute("aria-expanded", String(!isOpen));
-    const openLabel = toggle.dataset.openLabel ?? "Open menu";
-    const closeLabel = toggle.dataset.closeLabel ?? "Close menu";
-    toggle.setAttribute("aria-label", isOpen ? openLabel : closeLabel);
+    // Client-side navigation always lands with the menu closed — the old
+    // page's open/closed state doesn't carry over since the DOM is swapped.
+    menu?.classList.add("hidden");
+    iconMenu?.classList.remove("hidden");
+    iconClose?.classList.add("hidden");
+    toggle?.setAttribute("aria-expanded", "false");
+
+    toggle?.addEventListener("click", () => {
+      const isOpen = menu?.classList.contains("hidden") === false;
+      menu?.classList.toggle("hidden");
+      iconMenu?.classList.toggle("hidden");
+      iconClose?.classList.toggle("hidden");
+      toggle.setAttribute("aria-expanded", String(!isOpen));
+      const openLabel = toggle.dataset.openLabel ?? "Open menu";
+      const closeLabel = toggle.dataset.closeLabel ?? "Close menu";
+      toggle.setAttribute("aria-label", isOpen ? openLabel : closeLabel);
+    });
   });
 </script>

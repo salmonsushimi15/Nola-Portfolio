@@ -11,6 +11,19 @@ export const resume = {
     filename: "Nola-Amallia-Putri-CV.pdf",
     meta: "PDF · updated 2026",
   },
+  /**
+   * Full project portfolio PDF (Revisi klien putaran 2A, poin 5) — a
+   * compressed version of the client's source "PORTOFOLIO NOLA 2026.pdf"
+   * (~124MB), rendered down via site/scripts/compress-portfolio-pdf.mjs to
+   * stay well under GitHub's 100MB file limit. `meta` states the file size
+   * so visitors know what they're about to download.
+   */
+  portfolioDownload: {
+    label: "Download Portfolio (PDF)",
+    href: "/nola-amallia-putri-portfolio.pdf",
+    filename: "Nola-Amallia-Putri-Portfolio.pdf",
+    meta: "PDF — 18.6 MB",
+  },
   snapshot: {
     label: "At a Glance",
     currentRoleLabel: "Current Role",
