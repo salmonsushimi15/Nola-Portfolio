@@ -1,0 +1,193 @@
+---
+import { Image } from "astro:assets";
+import SectionNumber from "../SectionNumber.astro";
+import {
+  projects,
+  getFeaturedCover,
+  getGalleryImages,
+  buildGalleryRows,
+  type ProjectMeta,
+} from "../../lib/projects";
+import { getUi } from "../../i18n/getUi";
+import { getProjectsCopy, getCategoryLabel } from "../../i18n/getProjectsCopy";
+import { getLocalizedPath, type Lang } from "../../i18n/paths";
+
+interface Props {
+  lang: Lang;
+  project: ProjectMeta;
+}
+
+const { lang, project } = Astro.props;
+const t = getUi(lang);
+const p = (path: string) => getLocalizedPath(path, lang);
+
+const copy = getProjectsCopy(lang)[project.slug];
+const categoryLabel = getCategoryLabel(project, lang);
+
+const cover = project.hasRenders ? getFeaturedCover(project.slug) : undefined;
+const galleryRows = project.hasRenders
+  ? buildGalleryRows(getGalleryImages(project.slug))
+  : [];
+
+const currentIndex = projects.findIndex((proj) => proj.slug === project.slug);
+const prevProject = projects[(currentIndex - 1 + projects.length) % projects.length];
+const nextProject = projects[(currentIndex + 1) % projects.length];
+
+const numberDisplay = String(project.number).padStart(2, "0");
+---
+
+<!-- Hero: full-bleed photo for 01-06, typographic panel for 07-09 -->
+{
+  cover ? (
+    <div class="aspect-[4/3] w-full overflow-hidden bg-cream-panel sm:aspect-[16/9]">
+      <Image
+        src={cover}
+        alt={`${project.title} — ${t.projectDetail.heroImageAlt}`}
+        class="h-full w-full object-cover"
+        widths={[600, 1000, 1600, 2000]}
+        sizes="100vw"
+        loading="eager"
+        fetchpriority="high"
+      />
+    </div>
+  ) : (
+    <div class="flex aspect-[4/3] w-full flex-col items-center justify-center gap-6 bg-terracotta px-6 text-center sm:aspect-[21/9]">
+      <SectionNumber number={project.number} tone="inverted" size="lg" />
+      <p class="label-caps max-w-md text-sm text-white sm:text-base">{project.title}</p>
+    </div>
+  )
+}
+
+<!-- Title + summary -->
+<section class="content-wrap py-12 sm:py-16">
+  <span
+    aria-hidden="true"
+    class="block text-5xl font-bold leading-none text-terracotta tabular-nums sm:text-6xl"
+  >
+    {numberDisplay}
+  </span>
+  <p class="label-caps mt-4 text-xs text-terracotta-deep">{categoryLabel}</p>
+  <h1 class="mt-2 max-w-2xl text-4xl font-bold sm:text-5xl">{project.title}</h1>
+  <p class="mt-6 max-w-2xl text-base text-ink/70 sm:text-lg">{copy.summary}</p>
+</section>
+
+<!-- Concept -->
+<section class="bg-cream-panel py-12 sm:py-16">
+  <div class="content-wrap max-w-3xl">
+    <h2 class="label-caps text-xs text-ink/60">{t.projectDetail.conceptHeading}</h2>
+    <div class="mt-6 flex flex-col gap-5 text-base leading-relaxed text-ink/80">
+      {copy.concept.map((paragraph) => (
+        <p>{paragraph}</p>
+      ))}
+    </div>
+
+    {copy.deliverables && (
+      <div class="mt-10">
+        <h3 class="label-caps text-xs text-terracotta-deep">{t.projectDetail.deliverablesHeading}</h3>
+        <ul class="mt-4 grid gap-3 sm:grid-cols-2">
+          {copy.deliverables.map((item) => (
+            <li class="flex items-center gap-3 bg-cream px-4 py-3 text-sm text-ink">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="shrink-0 text-terracotta"
+              >
+                <path d="M20 6 9 17l-5-5" />
+              </svg>
+              {item}
+            </li>
+          ))}
+        </ul>
+      </div>
+    )}
+  </div>
+</section>
+
+<!-- Gallery: editorial rhythm — alternating full-bleed / two-column rows -->
+{
+  galleryRows.length > 0 && (
+    <section class="flex flex-col gap-2 py-2 sm:gap-3 sm:py-3">
+      {galleryRows.map((row) =>
+        row.length === 1 ? (
+          <div class="aspect-[16/9] w-full overflow-hidden bg-cream-panel">
+            <Image
+              src={row[0]}
+              alt={`${project.title} — ${t.projectDetail.renderAlt}`}
+              class="h-full w-full object-cover"
+              widths={[600, 1000, 1600, 2000]}
+              sizes="100vw"
+              loading="lazy"
+            />
+          </div>
+        ) : (
+          <div class="grid gap-2 sm:grid-cols-2 sm:gap-3">
+            {row.map((img) => (
+              <div class="aspect-[4/3] w-full overflow-hidden bg-cream-panel">
+                <Image
+                  src={img}
+                  alt={`${project.title} — ${t.projectDetail.renderAlt}`}
+                  class="h-full w-full object-cover"
+                  widths={[400, 700, 1000]}
+                  sizes="(min-width: 640px) 50vw, 100vw"
+                  loading="lazy"
+                />
+              </div>
+            ))}
+          </div>
+        )
+      )}
+    </section>
+  )
+}
+
+<!-- Prev / Next -->
+<nav aria-label="Other projects" class="content-wrap grid gap-4 py-16 sm:grid-cols-2 sm:py-20">
+  <a
+    href={p(`/projects/${prevProject.slug}`)}
+    class="group flex min-h-11 items-center gap-4 border border-ink/15 p-6 transition-colors hover:border-terracotta-deep"
+  >
+    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="shrink-0 text-terracotta"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+    <span aria-hidden="true" class="text-2xl font-bold text-terracotta tabular-nums">
+      {String(prevProject.number).padStart(2, "0")}
+    </span>
+    <span class="flex flex-col">
+      <span class="label-caps text-xs text-ink/50">{t.projectDetail.previousLabel}</span>
+      <span class="text-base font-semibold text-ink transition-colors group-hover:text-terracotta-deep">
+        {prevProject.title}
+      </span>
+    </span>
+  </a>
+
+  <a
+    href={p(`/projects/${nextProject.slug}`)}
+    class="group flex min-h-11 items-center justify-end gap-4 border border-ink/15 p-6 text-right transition-colors hover:border-terracotta-deep"
+  >
+    <span class="flex flex-col items-end">
+      <span class="label-caps text-xs text-ink/50">{t.projectDetail.nextLabel}</span>
+      <span class="text-base font-semibold text-ink transition-colors group-hover:text-terracotta-deep">
+        {nextProject.title}
+      </span>
+    </span>
+    <span aria-hidden="true" class="text-2xl font-bold text-terracotta tabular-nums">
+      {String(nextProject.number).padStart(2, "0")}
+    </span>
+    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="shrink-0 text-terracotta"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+  </a>
+</nav>
+
+<div class="content-wrap pb-16 sm:pb-20">
+  <a
+    href={p("/projects")}
+    class="label-caps inline-flex min-h-11 items-center gap-2 text-xs text-terracotta-deep transition-colors hover:text-terracotta"
+  >
+    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg>
+    {t.projectDetail.allProjectsLabel}
+  </a>
+</div>

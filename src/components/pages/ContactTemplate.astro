@@ -1,0 +1,170 @@
+---
+import { getUi } from "../../i18n/getUi";
+import { getLocalizedPath, type Lang } from "../../i18n/paths";
+import type { contact as contactEn } from "../../i18n/en/contact";
+
+interface Props {
+  lang: Lang;
+  content: typeof contactEn;
+}
+
+const { lang, content: contact } = Astro.props;
+const t = getUi(lang);
+
+// Netlify Forms: the <form> below is static HTML at build time (Astro static
+// output), which is exactly what Netlify's build-time form parser needs to
+// detect it — no client JS or extra hidden-form duplication required.
+// name="contact" is shared by BOTH language versions of the form (same
+// Netlify Forms registration either way) + data-netlify="true" + the
+// "form-name" hidden field register the form; netlify-honeypot adds spam
+// protection. The success redirect is localized so ID visitors land on the
+// ID thank-you page.
+const successAction = getLocalizedPath("/contact/success", lang);
+
+const contacts = [
+  {
+    label: "nola.amallia15@gmail.com",
+    href: "mailto:nola.amallia15@gmail.com",
+    icon: "mail" as const,
+  },
+  {
+    label: "+62 823-7348-7727",
+    href: "tel:+6282373487727",
+    icon: "phone" as const,
+  },
+  {
+    label: "linkedin.com/in/nolaamallia",
+    href: "https://linkedin.com/in/nolaamallia",
+    icon: "linkedin" as const,
+  },
+  {
+    label: "@nolaamp",
+    href: "https://instagram.com/nolaamp",
+    icon: "instagram" as const,
+  },
+];
+---
+
+<section class="content-wrap grid gap-12 py-16 sm:py-20 md:grid-cols-[1fr_1.1fr] md:py-24">
+  <div>
+    <p class="label-caps text-sm text-terracotta-deep">{contact.eyebrow}</p>
+    <h1 class="mt-4 text-4xl font-bold sm:text-5xl">{contact.heading}</h1>
+    <p class="mt-6 max-w-md text-base text-ink/70 sm:text-lg">{contact.lead}</p>
+
+    <div class="mt-10">
+      <h2 class="label-caps text-xs text-ink/70">{contact.fallback.heading}</h2>
+      <ul class="mt-4 flex flex-col gap-3">
+        {
+          contacts.map((c) => (
+            <li>
+              <a
+                href={c.href}
+                target={c.href.startsWith("http") ? "_blank" : undefined}
+                rel={c.href.startsWith("http") ? "noopener noreferrer" : undefined}
+                class="group inline-flex min-h-11 items-center gap-3 text-sm text-ink transition-colors hover:text-terracotta-deep"
+              >
+                <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-cream-panel text-terracotta transition-colors group-hover:bg-terracotta group-hover:text-cream">
+                  {c.icon === "mail" && (
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <rect width="20" height="16" x="2" y="4" rx="2" />
+                      <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+                    </svg>
+                  )}
+                  {c.icon === "phone" && (
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M13.832 16.568a1 1 0 0 0 1.213-.303l.355-.465A2 2 0 0 1 17 15h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2A18 18 0 0 1 2 4a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-.8 1.6l-.468.351a1 1 0 0 0-.292 1.233 14 14 0 0 0 6.392 6.384" />
+                    </svg>
+                  )}
+                  {c.icon === "linkedin" && (
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
+                      <rect width="4" height="12" x="2" y="9" />
+                      <circle cx="4" cy="4" r="2" />
+                    </svg>
+                  )}
+                  {c.icon === "instagram" && (
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
+                      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+                      <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
+                    </svg>
+                  )}
+                </span>
+                {c.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </div>
+
+  <div class="bg-cream-panel p-6 sm:p-10">
+    <form
+      name="contact"
+      method="POST"
+      data-netlify="true"
+      netlify-honeypot="bot-field"
+      action={successAction}
+      class="flex flex-col gap-5"
+    >
+      <input type="hidden" name="form-name" value="contact" />
+      <p class="hidden">
+        <label>
+          {t.form.honeypot} <input name="bot-field" />
+        </label>
+      </p>
+
+      <div class="flex flex-col gap-2">
+        <label for="name" class="label-caps text-xs text-ink/70">
+          {contact.form.name.label} <span aria-hidden="true" class="text-terracotta">*</span>
+        </label>
+        <input
+          id="name"
+          name="name"
+          type="text"
+          required
+          placeholder={contact.form.name.placeholder}
+          class="min-h-11 border border-ink/20 bg-cream px-4 py-2.5 text-ink placeholder:text-ink/40 focus-visible:border-terracotta"
+        />
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <label for="email" class="label-caps text-xs text-ink/70">
+          {contact.form.email.label} <span aria-hidden="true" class="text-terracotta">*</span>
+        </label>
+        <input
+          id="email"
+          name="email"
+          type="email"
+          required
+          placeholder={contact.form.email.placeholder}
+          class="min-h-11 border border-ink/20 bg-cream px-4 py-2.5 text-ink placeholder:text-ink/40 focus-visible:border-terracotta"
+        />
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <label for="message" class="label-caps text-xs text-ink/70">
+          {contact.form.message.label} <span aria-hidden="true" class="text-terracotta">*</span>
+        </label>
+        <textarea
+          id="message"
+          name="message"
+          rows="5"
+          required
+          placeholder={contact.form.message.placeholder}
+          class="border border-ink/20 bg-cream px-4 py-2.5 text-ink placeholder:text-ink/40 focus-visible:border-terracotta"
+        ></textarea>
+      </div>
+
+      <button
+        type="submit"
+        class="mt-2 inline-flex min-h-11 items-center justify-center rounded-full bg-terracotta px-6 text-sm font-semibold text-white transition-colors hover:bg-terracotta-deep"
+      >
+        {contact.form.submit}
+      </button>
+
+      <p class="text-xs text-ink/70">{contact.form.note}</p>
+    </form>
+  </div>
+</section>

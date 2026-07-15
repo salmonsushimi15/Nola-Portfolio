@@ -1,0 +1,57 @@
+---
+/**
+ * Recurring "01"-"09" structural numbering element (PRD Bagian 6).
+ * Used on the projects grid, project detail pages, and any section that
+ * needs the editorial numbered-section treatment.
+ */
+interface Props {
+  /** 1-9 (or any number/string) — will be zero-padded to 2 digits when numeric. */
+  number: number | string;
+  /** Optional label rendered next to/under the number, e.g. a category or section name. */
+  label?: string;
+  /** Visual size. "lg" for hero/grid use, "sm" for inline/detail-page headers. */
+  size?: "sm" | "lg";
+  /** "terracotta" (default) for numeral-on-light-bg, "inverted" (cream numeral) for use over a terracotta/dark panel. */
+  tone?: "terracotta" | "inverted";
+  class?: string;
+}
+
+const {
+  number,
+  label,
+  size = "lg",
+  tone = "terracotta",
+  class: className = "",
+} = Astro.props;
+
+const display =
+  typeof number === "number" ? String(number).padStart(2, "0") : number;
+
+const numberSizeClass =
+  size === "lg"
+    ? "text-6xl sm:text-7xl md:text-8xl"
+    : "text-3xl sm:text-4xl";
+
+// Numerals are always large+bold (min text-3xl), so cream-on-terracotta's
+// ~4.2:1 clears the 3:1 "large text" AA threshold. The label text next to it
+// is small, so it needs full-opacity white (~4.5:1) — cream or any reduced
+// opacity falls below AA there (verified in Tahap 6 contrast pass).
+const numberToneClass = tone === "inverted" ? "text-cream" : "text-terracotta";
+const labelToneClass = tone === "inverted" ? "text-white" : "text-ink/70";
+---
+
+<div class={`flex items-baseline gap-4 ${className}`}>
+  <span
+    aria-hidden="true"
+    class:list={["font-bold leading-none tabular-nums", numberSizeClass, numberToneClass]}
+  >
+    {display}
+  </span>
+  {
+    label && (
+      <span class:list={["label-caps text-xs sm:text-sm", labelToneClass]}>
+        {label}
+      </span>
+    )
+  }
+</div>

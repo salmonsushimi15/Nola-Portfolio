@@ -1,0 +1,34 @@
+---
+import Base from "../layouts/Base.astro";
+
+// Single EN-only 404 (per Tahap 6 brief) — Netlify serves this as the
+// static 404 page for any unmatched path, in either language.
+---
+
+<Base
+  title="Page Not Found"
+  description="The page you're looking for doesn't exist — head back to the homepage or browse the projects."
+  lang="en"
+>
+  <section class="content-wrap flex min-h-[60vh] flex-col items-center justify-center py-20 text-center">
+    <span aria-hidden="true" class="text-7xl font-bold leading-none text-terracotta sm:text-8xl">404</span>
+    <h1 class="mt-6 text-3xl font-bold sm:text-4xl">Page not found</h1>
+    <p class="mt-4 max-w-md text-ink/70">
+      The page you're looking for doesn't exist, may have moved, or the link might be broken.
+    </p>
+    <div class="mt-8 flex flex-wrap items-center justify-center gap-4">
+      <a
+        href="/"
+        class="inline-flex min-h-11 items-center justify-center rounded-full bg-terracotta px-6 text-sm font-semibold text-cream transition-colors hover:bg-terracotta-deep"
+      >
+        Back to Home
+      </a>
+      <a
+        href="/projects"
+        class="label-caps inline-flex min-h-11 items-center justify-center rounded-full border border-ink/20 px-6 text-xs text-ink transition-colors hover:border-terracotta-deep hover:text-terracotta-deep"
+      >
+        View Projects
+      </a>
+    </div>
+  </section>
+</Base>

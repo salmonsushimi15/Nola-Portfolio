@@ -1,0 +1,13 @@
+---
+import Base from "../../layouts/Base.astro";
+import HomeTemplate from "../../components/pages/HomeTemplate.astro";
+import { home } from "../../i18n/id/home";
+---
+
+<Base
+  title="Beranda"
+  description="Nola Amallia Putri — Junior Architect berbasis di Bandar Lampung, Indonesia. Desain residensial & komersial dari pengembangan konsep hingga dokumen konstruksi. Terbuka untuk posisi penuh waktu maupun proyek lepas."
+  lang="id"
+>
+  <HomeTemplate lang="id" content={home} />
+</Base>

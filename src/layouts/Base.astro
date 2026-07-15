@@ -1,0 +1,100 @@
+---
+import Nav from "../components/Nav.astro";
+import Footer from "../components/Footer.astro";
+import "../styles/global.css";
+import { getUi } from "../i18n/getUi";
+import { getLocalizedPath, type Lang } from "../i18n/paths";
+
+interface Props {
+  /** Page <title>. Site name is appended automatically. */
+  title: string;
+  /** Meta description, ~150-160 chars, unique per page. */
+  description: string;
+  /** Optional Open Graph image path (absolute URL or root-relative). Falls back to default OG image. */
+  ogImage?: string;
+  /** BCP-47 language code. Default "en" — EN lives at "/", ID mirrors under "/id/..." (Tahap 5). */
+  lang?: Lang;
+}
+
+const {
+  title,
+  description,
+  ogImage = "/og-default.jpg",
+  lang = "en",
+} = Astro.props;
+
+const t = getUi(lang);
+
+const siteName = "Nola Amallia Putri — Architect Portfolio";
+const pageTitle = title ? `${title} | ${siteName}` : siteName;
+// Astro.site is undefined until the production domain (Tahap 7) is set in
+// astro.config.mjs — fall back to the current request URL so build/dev
+// keep working with absolute URLs either way.
+const urlBase = Astro.site ?? Astro.url;
+const canonicalURL = new URL(Astro.url.pathname, urlBase);
+const ogImageURL = new URL(ogImage, urlBase);
+
+// hreflang alternates — same content in both languages, just a different path.
+const enHref = new URL(getLocalizedPath(Astro.url.pathname, "en"), urlBase);
+const idHref = new URL(getLocalizedPath(Astro.url.pathname, "id"), urlBase);
+
+const ogLocale = lang === "id" ? "id_ID" : "en_US";
+const ogLocaleAlternate = lang === "id" ? "en_US" : "id_ID";
+---
+
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta name="theme-color" content="#bc5a34" />
+    <meta name="generator" content={Astro.generator} />
+
+    <!-- SEO -->
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalURL} />
+
+    <!-- Open Graph / social -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={siteName} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImageURL} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:locale" content={ogLocale} />
+    <meta property="og:locale:alternate" content={ogLocaleAlternate} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={pageTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImageURL} />
+
+    <!-- i18n: route-based EN (/) + ID (/id/...) mirrors, same slugs -->
+    <link rel="alternate" hreflang="en" href={enHref} />
+    <link rel="alternate" hreflang="id" href={idHref} />
+    <link rel="alternate" hreflang="x-default" href={enHref} />
+
+    <slot name="head" />
+  </head>
+  <body class="flex min-h-screen flex-col bg-cream text-ink">
+    <a
+      href="#main-content"
+      class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded focus:bg-terracotta-deep focus:px-4 focus:py-2 focus:text-cream"
+    >
+      {t.skipToContent}
+    </a>
+
+    <Nav lang={lang} />
+
+    <main id="main-content" class="flex-1">
+      <slot />
+    </main>
+
+    <Footer lang={lang} />
+  </body>
+</html>

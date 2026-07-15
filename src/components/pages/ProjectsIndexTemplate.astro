@@ -1,0 +1,40 @@
+---
+import ProjectCard from "../ProjectCard.astro";
+import { projects, getFeaturedCover } from "../../lib/projects";
+import { getUi } from "../../i18n/getUi";
+import { getCategoryLabel } from "../../i18n/getProjectsCopy";
+import { getLocalizedPath, type Lang } from "../../i18n/paths";
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = getUi(lang);
+const p = (path: string) => getLocalizedPath(path, lang);
+---
+
+<section class="content-wrap py-16 sm:py-20">
+  <p class="label-caps text-sm text-terracotta-deep">{t.projectsIndexPage.eyebrow}</p>
+  <h1 class="mt-4 max-w-2xl text-4xl font-bold sm:text-5xl">{t.projectsIndexPage.heading}</h1>
+  <p class="mt-6 max-w-xl text-base text-ink/70 sm:text-lg">
+    {t.projectsIndexPage.lead}
+  </p>
+</section>
+
+<section class="content-wrap pb-20 sm:pb-28">
+  <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+    {
+      projects.map((proj) => (
+        <ProjectCard
+          number={proj.number}
+          title={proj.title}
+          category={getCategoryLabel(proj, lang)}
+          href={p(`/projects/${proj.slug}`)}
+          image={proj.hasRenders ? getFeaturedCover(proj.slug) : undefined}
+          imageAlt={`${proj.title} — render preview`}
+        />
+      ))
+    }
+  </div>
+</section>

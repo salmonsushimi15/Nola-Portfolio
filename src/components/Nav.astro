@@ -1,0 +1,217 @@
+---
+/**
+ * Site navigation. Logo text + primary links + functional EN/ID language
+ * toggle (Tahap 5) that links to the equivalent page in the other language,
+ * not always the homepage.
+ */
+import { getUi } from "../i18n/getUi";
+import { getLocalizedPath, type Lang } from "../i18n/paths";
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = getUi(lang);
+
+// Bare (EN-style) hrefs — getLocalizedPath adds the "/id" prefix when needed.
+const navLinks = [
+  { href: "/", label: t.nav.home },
+  { href: "/about", label: t.nav.about },
+  { href: "/projects", label: t.nav.projects },
+  { href: "/contact", label: t.nav.contact },
+  { href: "/resume", label: t.nav.resume },
+].map((link) => ({ ...link, href: getLocalizedPath(link.href, lang) }));
+
+const currentPath = Astro.url.pathname;
+
+function isActive(href: string) {
+  if (href === "/" || href === "/id/") return currentPath === href;
+  return currentPath === href || currentPath.startsWith(`${href}/`);
+}
+
+const enHref = getLocalizedPath(currentPath, "en");
+const idHref = getLocalizedPath(currentPath, "id");
+---
+
+<header class="sticky top-0 z-40 border-b border-ink/10 bg-cream/95 backdrop-blur-sm">
+  <div class="content-wrap flex h-20 items-center justify-between">
+    <a
+      href={getLocalizedPath("/", lang)}
+      class="font-semibold tracking-tight text-ink transition-colors hover:text-terracotta-deep"
+    >
+      <span class="text-lg sm:text-xl">Nola Amallia Putri</span>
+    </a>
+
+    <!-- Desktop nav -->
+    <nav aria-label="Primary" class="hidden items-center gap-8 md:flex">
+      <ul class="label-caps flex items-center gap-8 text-xs">
+        {
+          navLinks.map((link) => (
+            <li>
+              <a
+                href={link.href}
+                aria-current={isActive(link.href) ? "page" : undefined}
+                class:list={[
+                  "inline-flex min-h-11 items-center border-b-2 border-transparent py-1 transition-colors hover:text-terracotta-deep",
+                  isActive(link.href)
+                    ? "border-terracotta text-terracotta-deep"
+                    : "text-ink",
+                ]}
+              >
+                {link.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+
+      <!-- EN/ID language toggle -->
+      <div
+        role="group"
+        aria-label={t.nav.languageGroupLabel}
+        class="inline-flex items-center gap-1 rounded-full border border-ink/15 p-1"
+      >
+        <a
+          href={enHref}
+          aria-label="English"
+          aria-current={lang === "en" ? "true" : undefined}
+          class:list={[
+            "label-caps inline-flex h-9 min-w-11 items-center justify-center rounded-full px-3 text-xs transition-colors",
+            lang === "en"
+              ? "bg-terracotta text-white"
+              : "text-ink/70 hover:text-terracotta-deep",
+          ]}
+        >
+          EN
+        </a>
+        <a
+          href={idHref}
+          aria-label="Bahasa Indonesia"
+          aria-current={lang === "id" ? "true" : undefined}
+          class:list={[
+            "label-caps inline-flex h-9 min-w-11 items-center justify-center rounded-full px-3 text-xs transition-colors",
+            lang === "id"
+              ? "bg-terracotta text-white"
+              : "text-ink/70 hover:text-terracotta-deep",
+          ]}
+        >
+          ID
+        </a>
+      </div>
+    </nav>
+
+    <!-- Mobile menu button -->
+    <button
+      type="button"
+      id="nav-toggle"
+      aria-expanded="false"
+      aria-controls="mobile-menu"
+      aria-label={t.nav.openMenu}
+      data-open-label={t.nav.openMenu}
+      data-close-label={t.nav.closeMenu}
+      class="inline-flex h-11 w-11 items-center justify-center rounded-full text-ink transition-colors hover:bg-cream-panel md:hidden"
+    >
+      <svg
+        id="icon-menu"
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <line x1="4" y1="7" x2="20" y2="7"></line>
+        <line x1="4" y1="12" x2="20" y2="12"></line>
+        <line x1="4" y1="17" x2="20" y2="17"></line>
+      </svg>
+      <svg
+        id="icon-close"
+        class="hidden"
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Mobile menu panel -->
+  <nav
+    id="mobile-menu"
+    aria-label="Primary mobile"
+    class="hidden border-t border-ink/10 bg-cream md:hidden"
+  >
+    <ul class="label-caps content-wrap flex flex-col gap-1 py-3 text-xs">
+      {
+        navLinks.map((link) => (
+          <li>
+            <a
+              href={link.href}
+              aria-current={isActive(link.href) ? "page" : undefined}
+              class:list={[
+                "flex min-h-11 items-center border-b border-ink/5 py-2 transition-colors hover:text-terracotta-deep",
+                isActive(link.href) ? "text-terracotta-deep" : "text-ink",
+              ]}
+            >
+              {link.label}
+            </a>
+          </li>
+        ))
+      }
+      <li class="flex items-center gap-1 pt-2">
+        <a
+          href={enHref}
+          aria-label="English"
+          aria-current={lang === "en" ? "true" : undefined}
+          class:list={[
+            "label-caps inline-flex h-11 min-w-11 items-center justify-center rounded-full px-4 text-xs transition-colors",
+            lang === "en" ? "bg-terracotta text-white" : "border border-ink/15 text-ink/70",
+          ]}
+        >
+          EN
+        </a>
+        <a
+          href={idHref}
+          aria-label="Bahasa Indonesia"
+          aria-current={lang === "id" ? "true" : undefined}
+          class:list={[
+            "label-caps inline-flex h-11 min-w-11 items-center justify-center rounded-full px-4 text-xs transition-colors",
+            lang === "id" ? "bg-terracotta text-white" : "border border-ink/15 text-ink/70",
+          ]}
+        >
+          ID
+        </a>
+      </li>
+    </ul>
+  </nav>
+</header>
+
+<script>
+  const toggle = document.getElementById("nav-toggle");
+  const menu = document.getElementById("mobile-menu");
+  const iconMenu = document.getElementById("icon-menu");
+  const iconClose = document.getElementById("icon-close");
+
+  toggle?.addEventListener("click", () => {
+    const isOpen = menu?.classList.contains("hidden") === false;
+    menu?.classList.toggle("hidden");
+    iconMenu?.classList.toggle("hidden");
+    iconClose?.classList.toggle("hidden");
+    toggle.setAttribute("aria-expanded", String(!isOpen));
+    const openLabel = toggle.dataset.openLabel ?? "Open menu";
+    const closeLabel = toggle.dataset.closeLabel ?? "Close menu";
+    toggle.setAttribute("aria-label", isOpen ? openLabel : closeLabel);
+  });
+</script>

@@ -1,0 +1,25 @@
+---
+import Base from "../../../layouts/Base.astro";
+import ProjectDetailTemplate from "../../../components/pages/ProjectDetailTemplate.astro";
+import { projects, getProjectOgImage, type ProjectMeta } from "../../../lib/projects";
+import { projectsCopy } from "../../../i18n/id/projects";
+
+export async function getStaticPaths() {
+  return projects.map((p) => ({
+    params: { slug: p.slug },
+    props: { project: p },
+  }));
+}
+
+interface Props {
+  project: ProjectMeta;
+}
+
+const { project } = Astro.props;
+const copy = projectsCopy[project.slug];
+const ogImage = await getProjectOgImage(project.slug);
+---
+
+<Base title={project.title} description={copy.summary} lang="id" ogImage={ogImage}>
+  <ProjectDetailTemplate lang="id" project={project} />
+</Base>

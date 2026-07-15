@@ -1,0 +1,13 @@
+---
+import Base from "../../../layouts/Base.astro";
+import ContactTemplate from "../../../components/pages/ContactTemplate.astro";
+import { contact } from "../../../i18n/id/contact";
+---
+
+<Base
+  title="Kontak"
+  description="Hubungi Nola Amallia Putri untuk posisi penuh waktu atau proyek arsitektur lepas (freelance) — email, telepon, LinkedIn, Instagram, atau formulir kontak di bawah."
+  lang="id"
+>
+  <ContactTemplate lang="id" content={contact} />
+</Base>

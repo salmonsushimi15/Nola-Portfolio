@@ -1,0 +1,30 @@
+---
+import { getLocalizedPath, type Lang } from "../../i18n/paths";
+import type { contact as contactEn } from "../../i18n/en/contact";
+
+interface Props {
+  lang: Lang;
+  content: typeof contactEn;
+}
+
+const { lang, content: contact } = Astro.props;
+const homeHref = getLocalizedPath("/", lang);
+---
+
+<section class="content-wrap flex min-h-[60vh] flex-col items-center justify-center py-20 text-center">
+  <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-terracotta text-cream">
+    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M20 6 9 17l-5-5" />
+    </svg>
+  </span>
+  <h1 class="mt-6 text-3xl font-bold sm:text-4xl">{contact.success.heading}</h1>
+  <p class="mt-4 max-w-md text-ink/70">
+    {contact.success.lead}
+  </p>
+  <a
+    href={homeHref}
+    class="label-caps mt-8 inline-flex min-h-11 items-center justify-center rounded-full border border-ink/20 px-6 text-xs text-ink transition-colors hover:border-terracotta-deep hover:text-terracotta-deep"
+  >
+    {contact.success.backHome}
+  </a>
+</section>

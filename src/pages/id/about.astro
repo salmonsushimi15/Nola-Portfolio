@@ -1,0 +1,13 @@
+---
+import Base from "../../layouts/Base.astro";
+import AboutTemplate from "../../components/pages/AboutTemplate.astro";
+import { about } from "../../i18n/id/about";
+---
+
+<Base
+  title="Tentang"
+  description="Tentang Nola Amallia Putri — pendidikan (PPAr Universitas Indonesia, S1 Arsitektur Institut Teknologi Sumatera), pengalaman profesional, filosofi desain, keahlian software, dan publikasi riset."
+  lang="id"
+>
+  <AboutTemplate lang="id" content={about} />
+</Base>

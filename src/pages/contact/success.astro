@@ -1,0 +1,13 @@
+---
+import Base from "../../layouts/Base.astro";
+import ContactSuccessTemplate from "../../components/pages/ContactSuccessTemplate.astro";
+import { contact } from "../../i18n/en/contact";
+---
+
+<Base
+  title="Message Sent"
+  description="Thank you for reaching out to Nola Amallia Putri — your message has been received."
+  lang="en"
+>
+  <ContactSuccessTemplate lang="en" content={contact} />
+</Base>

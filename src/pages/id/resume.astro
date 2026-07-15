@@ -1,0 +1,13 @@
+---
+import Base from "../../layouts/Base.astro";
+import ResumeTemplate from "../../components/pages/ResumeTemplate.astro";
+import { resume } from "../../i18n/id/resume";
+---
+
+<Base
+  title="Resume"
+  description="Unduh CV Nola Amallia Putri (PDF) — pendidikan, pengalaman profesional, dan keahlian software untuk seorang junior architect berbasis di Bandar Lampung, Indonesia."
+  lang="id"
+>
+  <ResumeTemplate lang="id" content={resume} />
+</Base>

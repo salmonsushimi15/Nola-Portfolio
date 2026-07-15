@@ -1,0 +1,130 @@
+---
+import { Image } from "astro:assets";
+import ProjectCard from "../ProjectCard.astro";
+import { projects, getFeaturedCover } from "../../lib/projects";
+import { getCategoryLabel } from "../../i18n/getProjectsCopy";
+import { getLocalizedPath, type Lang } from "../../i18n/paths";
+import profileImage from "../../assets/profile.jpg";
+import type { home as homeEn } from "../../i18n/en/home";
+
+interface Props {
+  lang: Lang;
+  content: typeof homeEn;
+}
+
+const { lang, content: home } = Astro.props;
+const p = (path: string) => getLocalizedPath(path, lang);
+
+const featuredProjects = home.featured.slugs
+  .map((slug) => projects.find((proj) => proj.slug === slug))
+  .filter((proj): proj is NonNullable<typeof proj> => Boolean(proj));
+---
+
+<!-- Hero -->
+<section class="content-wrap grid gap-12 py-16 sm:py-20 md:grid-cols-[1.1fr_0.9fr] md:items-center md:py-28">
+  <div>
+    <p class="label-caps text-sm text-terracotta-deep">{home.hero.eyebrow}</p>
+    <h1 class="mt-4 text-4xl font-bold sm:text-5xl md:text-6xl">
+      {home.hero.heading}
+    </h1>
+    <p class="mt-6 max-w-xl text-base text-ink/70 sm:text-lg">
+      {home.hero.lead}
+    </p>
+
+    <ul class="mt-6 flex flex-wrap gap-3">
+      {
+        home.hero.badges.map((badge) => (
+          <li class="label-caps inline-flex items-center rounded-full border border-terracotta/30 bg-cream-panel px-4 py-2 text-xs text-terracotta-deep">
+            {badge}
+          </li>
+        ))
+      }
+    </ul>
+
+    <div class="mt-8 flex flex-wrap items-center gap-4">
+      <a
+        href={p(home.hero.ctaPrimary.href)}
+        class="inline-flex min-h-11 items-center justify-center rounded-full bg-terracotta px-6 text-sm font-semibold text-white transition-colors hover:bg-terracotta-deep"
+      >
+        {home.hero.ctaPrimary.label}
+      </a>
+      <a
+        href={p(home.hero.ctaSecondary.href)}
+        class="label-caps inline-flex min-h-11 items-center justify-center rounded-full border border-ink/20 px-6 text-xs text-ink transition-colors hover:border-terracotta-deep hover:text-terracotta-deep"
+      >
+        {home.hero.ctaSecondary.label}
+      </a>
+    </div>
+  </div>
+
+  <div class="relative mx-auto aspect-[4/5] w-full max-w-sm overflow-hidden bg-cream-panel md:max-w-none">
+    <Image
+      src={profileImage}
+      alt={home.hero.profileImageAlt}
+      class="h-full w-full object-cover"
+      widths={[400, 700, 1000]}
+      sizes="(min-width: 768px) 40vw, 80vw"
+      loading="eager"
+      fetchpriority="high"
+    />
+  </div>
+</section>
+
+<!-- Featured work -->
+<section class="bg-cream-panel py-20 sm:py-24">
+  <div class="content-wrap">
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+      <div>
+        <p class="label-caps text-sm text-terracotta-deep">{home.featured.eyebrow}</p>
+        <h2 class="mt-3 max-w-2xl text-3xl font-bold sm:text-4xl">
+          {home.featured.heading}
+        </h2>
+        <p class="mt-3 max-w-xl text-ink/70">{home.featured.lead}</p>
+      </div>
+      <a
+        href={p(home.featured.cta.href)}
+        class="label-caps inline-flex min-h-11 shrink-0 items-center gap-2 text-xs text-terracotta-deep transition-colors hover:text-terracotta"
+      >
+        {home.featured.cta.label}
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+      </a>
+    </div>
+
+    <div class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      {
+        featuredProjects.map((proj) => (
+          <ProjectCard
+            number={proj.number}
+            title={proj.title}
+            category={getCategoryLabel(proj, lang)}
+            href={p(`/projects/${proj.slug}`)}
+            image={getFeaturedCover(proj.slug)}
+            imageAlt={`${proj.title} — render preview`}
+          />
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<!-- Closing CTA -->
+<section class="content-wrap py-20 text-center sm:py-24">
+  <h2 class="mx-auto max-w-xl text-3xl font-bold sm:text-4xl">
+    {home.closing.heading}
+  </h2>
+  <p class="mx-auto mt-4 max-w-md text-ink/70">{home.closing.lead}</p>
+  <div class="mt-8 flex flex-wrap items-center justify-center gap-4">
+    <a
+      href={p(home.closing.ctaPrimary.href)}
+      class="inline-flex min-h-11 items-center justify-center rounded-full bg-terracotta px-6 text-sm font-semibold text-white transition-colors hover:bg-terracotta-deep"
+    >
+      {home.closing.ctaPrimary.label}
+    </a>
+    <a
+      href={p(home.closing.ctaSecondary.href)}
+      class="label-caps inline-flex min-h-11 items-center justify-center rounded-full border border-ink/20 px-6 text-xs text-ink transition-colors hover:border-terracotta-deep hover:text-terracotta-deep"
+    >
+      {home.closing.ctaSecondary.label}
+    </a>
+  </div>
+</section>

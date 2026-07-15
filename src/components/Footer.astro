@@ -1,0 +1,144 @@
+---
+/**
+ * Site footer — contact channels per PRD Bagian 1 (kontak klien, FIXED).
+ * Icons are hand-authored inline SVG (Lucide-style outline), no emoji.
+ * Contact values themselves (email/phone/handles) aren't translated —
+ * only the surrounding tagline/copyright text is.
+ */
+import { getUi } from "../i18n/getUi";
+import type { Lang } from "../i18n/paths";
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = getUi(lang);
+
+const year = new Date().getFullYear();
+
+const contacts = [
+  {
+    label: "nola.amallia15@gmail.com",
+    href: "mailto:nola.amallia15@gmail.com",
+    icon: "mail" as const,
+  },
+  {
+    label: "+62 823-7348-7727",
+    href: "tel:+6282373487727",
+    icon: "phone" as const,
+  },
+  {
+    label: "linkedin.com/in/nolaamallia",
+    href: "https://linkedin.com/in/nolaamallia",
+    icon: "linkedin" as const,
+  },
+  {
+    label: "@nolaamp",
+    href: "https://instagram.com/nolaamp",
+    icon: "instagram" as const,
+  },
+];
+---
+
+<footer class="border-t border-ink/10 bg-cream-panel">
+  <div class="content-wrap grid gap-10 py-14 md:grid-cols-[1.2fr_1fr]">
+    <div>
+      <p class="text-xl font-semibold text-ink">Nola Amallia Putri</p>
+      <p class="mt-3 max-w-sm text-sm text-ink/70">
+        {t.footer.tagline}
+      </p>
+    </div>
+
+    <ul class="flex flex-col gap-3">
+      {
+        contacts.map((c) => (
+          <li>
+            <a
+              href={c.href}
+              target={c.href.startsWith("http") ? "_blank" : undefined}
+              rel={c.href.startsWith("http") ? "noopener noreferrer" : undefined}
+              class="group inline-flex min-h-11 items-center gap-3 text-sm text-ink transition-colors hover:text-terracotta-deep"
+            >
+              <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-cream text-terracotta transition-colors group-hover:bg-terracotta group-hover:text-cream">
+                {c.icon === "mail" && (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <rect width="20" height="16" x="2" y="4" rx="2" />
+                    <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+                  </svg>
+                )}
+                {c.icon === "phone" && (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M13.832 16.568a1 1 0 0 0 1.213-.303l.355-.465A2 2 0 0 1 17 15h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2A18 18 0 0 1 2 4a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-.8 1.6l-.468.351a1 1 0 0 0-.292 1.233 14 14 0 0 0 6.392 6.384" />
+                  </svg>
+                )}
+                {c.icon === "linkedin" && (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
+                    <rect width="4" height="12" x="2" y="9" />
+                    <circle cx="4" cy="4" r="2" />
+                  </svg>
+                )}
+                {c.icon === "instagram" && (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
+                    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+                    <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
+                  </svg>
+                )}
+              </span>
+              {c.label}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+
+  <div class="border-t border-ink/10">
+    <div class="content-wrap flex flex-col gap-2 py-6 text-xs text-ink/70 sm:flex-row sm:items-center sm:justify-between">
+      <p>&copy; {year} Nola Amallia Putri. {t.footer.rights}</p>
+      <p>Bandar Lampung, Indonesia</p>
+    </div>
+  </div>
+</footer>

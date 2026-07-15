@@ -1,0 +1,13 @@
+---
+import Base from "../layouts/Base.astro";
+import ContactTemplate from "../components/pages/ContactTemplate.astro";
+import { contact } from "../i18n/en/contact";
+---
+
+<Base
+  title="Contact"
+  description="Get in touch with Nola Amallia Putri for full-time roles or freelance architecture projects — email, phone, LinkedIn, Instagram, or the contact form below."
+  lang="en"
+>
+  <ContactTemplate lang="en" content={contact} />
+</Base>
