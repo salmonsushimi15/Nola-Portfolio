@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://nolaamallia.netlify.app/sitemap-index.xml
+Sitemap: https://nolaarchitect.my.id/sitemap-index.xml
